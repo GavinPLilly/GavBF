@@ -164,7 +164,7 @@ void BF_Program::execute_left_bracket() {
 }
 
 void BF_Program::execute_right_bracket() {
-	if(d_mem[d_idx] == 0) {
+	if(d_mem[d_idx] != 0) {
 		int depth = 0;
 		--i_idx;
 		while(i_idx >= 0) {
