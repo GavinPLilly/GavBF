@@ -1,26 +1,24 @@
+#ifndef GAVBF_VIEW_H
+#define GAVBF_VIEW_H
 /**************************************************
  * Includes
  **************************************************/
-#include <iostream>
-
-#include "gavbf_text_view.h"
+#include "view.h"
 
 /**************************************************
  * Constants
  **************************************************/
 
 /**************************************************
- * Code
+ * Declarations
  **************************************************/
-using namespace std;
 
-void Text_BF_Program_View::output(char out_char) {
-	output_record += out_char;
-	cout << out_char;
-}
+class Gavbf_View: public BF_View {
+BF_Controller* controller;
+public:
+	Gavbf_View(BF_Controller* controller);
+	void output(char out_char);
+private:
+};
 
-char Text_BF_Program_View::input() {
-	char c;
-	cin >> c;
-	return c;
-}
+#endif // GAVBF_VIEW_H

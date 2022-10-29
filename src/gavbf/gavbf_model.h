@@ -1,11 +1,13 @@
-#ifndef GAVBF_H
-#define GAVBF_H
+#ifndef GAVBF_MODEL_H
+#define GAVBF_MODEL_H
 /**************************************************
  * Includes
  **************************************************/
 #include <vector>
 #include <string>
 #include <fstream>
+
+#include "model.h"
 
 /**************************************************
  * Constants
@@ -16,22 +18,16 @@
  **************************************************/
 using namespace std;
 
-class BF_Program_View {
-public:
-	virtual void output(char out_char) = 0;
-	virtual char input() = 0;
-};
-
-class BF_Program {
+class Gavbf_Model: public BF_Model {
 	ifstream infile;
 	vector<char> i_mem; // Instruction memory
 	vector<char> d_mem; // Data memory
 	int i_idx; // Instruction pointer
 	int d_idx; // Data pointer
 	int last_executed_instruction;
-	BF_Program_View* view_ptr;
+	BF_Controller* controller_ptr;
 public:
-	BF_Program(string infile_name, BF_Program_View* view);
+	Gavbf_Model(BF_Controller* controller_ptr, string infile_name);
 	// Mutator methods
 	void set_i_idx(int new_i_idx);
 	void set_d_idx(int new_d_idx);
@@ -57,4 +53,4 @@ private:
 };
 
 bool is_executable_instruction(char instruction);
-#endif //GAVBF_H
+#endif //GAVBF_MODEL_H

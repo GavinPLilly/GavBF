@@ -3,8 +3,9 @@
  **************************************************/
 #include <iostream>
 
-#include "gavbf.h"
-#include "gavbf_text_view.h"
+#include "gavbf_controller.h"
+#include "gavbf_model.h"
+#include "gavbf_view.h"
 
 /**************************************************
  * Constants
@@ -26,10 +27,15 @@ int main(int argc, char** argv) {
 		cout << "Syntax: gavbf <filename>" << endl;
 		exit(1);
 	}
-	Text_BF_Program_View view;
-	BF_Program my_program(string(argv[1]), &view);
-	while(my_program.is_terminated() == false) {
-		my_program.execute_next_char();
+	Gavbf_Controller controller;
+	Gavbf_Model model(&controller, string(argv[1]));
+	Gavbf_View view(&controller);
+	controller.add_model(&model);
+	controller.add_view(&view);
+
+	while(model.is_terminated() == false) {
+		model.execute_next_char();
 	}
+
 	return 0;
 }

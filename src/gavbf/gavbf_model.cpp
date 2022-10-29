@@ -6,7 +6,7 @@
 
 #include <filesystem>
 
-#include "gavbf.h"
+#include "gavbf_model.h"
 
 /**************************************************
  * Constants
@@ -14,13 +14,13 @@
 const int D_MEM_INIT_SIZE = 256;
 
 /**************************************************
- * BF_Program
+ * Gavbf_Model
  **************************************************/
 using namespace std;
 
-BF_Program::BF_Program(string infile_name, BF_Program_View* view_ptr) {
+Gavbf_Model::Gavbf_Model(BF_Controller* controller_ptr, string infile_name) {
 	open_infile(infile_name);
-	this->view_ptr = view_ptr;
+	this->controller_ptr = controller_ptr;
 	init_i_mem();
 	init_d_mem();
 	i_idx = 0;
@@ -31,27 +31,27 @@ BF_Program::BF_Program(string infile_name, BF_Program_View* view_ptr) {
 /**************************************************
  * Public Methods
  **************************************************/
-void BF_Program::set_i_idx(int new_i_idx) {
+void Gavbf_Model::set_i_idx(int new_i_idx) {
 	assert(new_i_idx >= 0);
 	assert(i_mem.size());
 	i_idx = new_i_idx;
 }
 
-void BF_Program::set_d_idx(int new_d_idx) {
+void Gavbf_Model::set_d_idx(int new_d_idx) {
 	assert(new_d_idx >= 0);
 	assert(new_d_idx < d_mem.size());
 	d_idx = new_d_idx;
 }
 
-void BF_Program::write_i_mem(char new_instruction) {
+void Gavbf_Model::write_i_mem(char new_instruction) {
 	i_mem[i_idx] = new_instruction;
 }
 
-void BF_Program::write_d_mem(char new_data) {
+void Gavbf_Model::write_d_mem(char new_data) {
 	d_mem[d_idx] = new_data;
 }
 
-void BF_Program::execute_next_char() {
+void Gavbf_Model::execute_next_char() {
 	assert(is_terminated() == false);
 	switch(i_mem[i_idx]) {
 		case '>':
@@ -88,7 +88,7 @@ void BF_Program::execute_next_char() {
 	++i_idx;
 }
 
-void BF_Program::execute_next_instruction() {
+void Gavbf_Model::execute_next_instruction() {
 	assert(is_terminated() == false);
 	while(i_idx < i_mem.size()) {
 		if(is_executable_instruction(i_mem[i_idx])) {
@@ -99,38 +99,38 @@ void BF_Program::execute_next_instruction() {
 	}
 }
 
-bool BF_Program::is_terminated() {
+bool Gavbf_Model::is_terminated() {
 	return i_idx >= i_mem.size();
 }
 
-vector<char>& BF_Program::get_i_mem() {
+vector<char>& Gavbf_Model::get_i_mem() {
 	return i_mem;
 }
 
-vector<char>& BF_Program::get_d_mem() {
+vector<char>& Gavbf_Model::get_d_mem() {
 	return d_mem;
 }
 
-int BF_Program::get_i_idx() {
+int Gavbf_Model::get_i_idx() {
 	return i_idx;
 }
-int BF_Program::get_d_idx() {
+int Gavbf_Model::get_d_idx() {
 	return d_idx;
 }
 
-int BF_Program::get_last_executed_instruction() {
+int Gavbf_Model::get_last_executed_instruction() {
 	return last_executed_instruction;
 }
 
 /**************************************************
  * Private Methods
  **************************************************/
-void BF_Program::open_infile(string infile_name) {
+void Gavbf_Model::open_infile(string infile_name) {
 	assert(filesystem::exists(infile_name));
 	infile = ifstream(infile_name);
 }
 
-void BF_Program::init_i_mem() {
+void Gavbf_Model::init_i_mem() {
 	char c;
 	i_mem = vector<char>();
 	infile.get(c);
@@ -140,11 +140,11 @@ void BF_Program::init_i_mem() {
 	}
 }
 
-void BF_Program::init_d_mem() {
+void Gavbf_Model::init_d_mem() {
 	d_mem = vector<char>(D_MEM_INIT_SIZE, 0);
 }
 
-void BF_Program::execute_left_bracket() {
+void Gavbf_Model::execute_left_bracket() {
 	if(d_mem[d_idx] == 0) {
 		int depth = 0;
 		++i_idx;
@@ -163,7 +163,7 @@ void BF_Program::execute_left_bracket() {
 	}
 }
 
-void BF_Program::execute_right_bracket() {
+void Gavbf_Model::execute_right_bracket() {
 	if(d_mem[d_idx] != 0) {
 		int depth = 0;
 		--i_idx;
@@ -182,12 +182,12 @@ void BF_Program::execute_right_bracket() {
 	}
 }
 
-void BF_Program::output(char out_char) {
-	view_ptr->output(out_char);
+void Gavbf_Model::output(char out_char) {
+	controller_ptr->output(out_char);
 }
 
-char BF_Program::input() {
-	return view_ptr->input();
+char Gavbf_Model::input() {
+	return controller_ptr->input();
 }
 
 /**************************************************
