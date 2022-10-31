@@ -47,12 +47,13 @@ public:
 	void bf_output(unsigned char out_char) override;
 	// Drawing methods
 	void draw() override;
-	void draw_background() override;
-	void draw_input() override;
-	void draw_output() override;
-	void draw_pointers() override;
-	void draw_buttons() override;
-	void draw_tape() override;
+	void draw_background();
+	void draw_program();
+	void draw_input();
+	void draw_output();
+	void draw_pointers();
+	void draw_buttons();
+	void draw_tape();
 	// Controlling the view
 	void set_tape_start(int start) override;
 private:
