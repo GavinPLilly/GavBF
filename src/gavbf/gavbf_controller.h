@@ -22,10 +22,14 @@ class Gavbf_Controller: public BF_Controller {
 	BF_View* view;
 public:
 	Gavbf_Controller();
-	void add_model(BF_Model* model);
-	void add_view(BF_View* view);
-	void output(char out_char);
-	char input();
+	void add_model(BF_Model* model) override;
+	void add_view(BF_View* view) override;
+	BF_Model& get_model() override;
+
+	void bf_output(unsigned char out_char) override;
+	char bf_input() override;
+
+	void run() override;
 private:
 };
 

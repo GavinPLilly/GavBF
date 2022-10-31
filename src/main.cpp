@@ -2,6 +2,7 @@
  * Includes
  **************************************************/
 #include <iostream>
+#include <unistd.h> // used for sleep()
 
 #include "gavbf_controller.h"
 #include "gavbf_model.h"
@@ -16,7 +17,8 @@
  **************************************************/
 using namespace std;
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
 	if(argc < 2) {
 		cout << "Missing filename" << endl;
 		cout << "Syntax: gavbf <filename>" << endl;
@@ -29,13 +31,21 @@ int main(int argc, char** argv) {
 	}
 	Gavbf_Controller controller;
 	Gavbf_Model model(&controller, string(argv[1]));
-	Gavbf_View view(&controller);
+	Gavbf_View view(&controller, string(argv[1]));
 	controller.add_model(&model);
 	controller.add_view(&view);
 
+	view.draw_background();
+
 	while(model.is_terminated() == false) {
+		view.draw();
+		usleep(100000);
 		model.execute_next_char();
 	}
+
+	view.draw();
+
+	cout << "hi\n";
 
 	return 0;
 }
