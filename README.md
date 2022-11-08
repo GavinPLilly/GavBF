@@ -5,8 +5,7 @@ An in terminal [Brainfuck](https://en.wikipedia.org/wiki/Brainfuck "Brainfuck Wi
 ![Screenshot from 2022-11-01 19-40-36](https://user-images.githubusercontent.com/66760957/199380925-4c3e2366-5113-4a8b-949e-a23eb7acd8be.png)
 
 ## Running gavbf
-Compile the program by running ```make```.\
-The program requires the Ncurses library to link with.\
+Compile the program by running ```make```. gavbf needs to be able link with Ncurses.\
 To use gavbf run the gavbf program followed by the path to a program. Some example programs are included in the "programs" directory.\
 ```./gavbf programs/helloworld.bf```
 
