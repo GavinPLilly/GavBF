@@ -3,9 +3,12 @@
  **************************************************/
 #include <cassert>
 #include <iostream>
+#include <ncurses.h>
+#include <glog/logging.h>
 
 #include "gavbf_controller.h"
-#include "view.h"
+#include "gavbf_view.h"
+#include "gavbf_model.h"
 
 /**************************************************
  * Constants
@@ -24,19 +27,26 @@ Gavbf_Controller::Gavbf_Controller():
 /**************************************************
  * Public Methods
  **************************************************/
-void Gavbf_Controller::add_model(BF_Model* model)
+void Gavbf_Controller::add_gavbf_model(Gavbf_Model* model)
 {
 	this->model = model;
 }
 
-void Gavbf_Controller::add_view(BF_View* view)
+void Gavbf_Controller::add_gavbf_view(Gavbf_View* view)
 {
 	this->view = view;
 }
 
-BF_Model& Gavbf_Controller::get_model() {
+Gavbf_Model& Gavbf_Controller::get_gavbf_model()
+{
 	assert(model != nullptr);
 	return *model;
+}
+
+Gavbf_View& Gavbf_Controller::get_gavbf_view()
+{
+	assert(model != nullptr);
+	return *view;
 }
 
 void Gavbf_Controller::bf_output(unsigned char out_char)
@@ -46,13 +56,46 @@ void Gavbf_Controller::bf_output(unsigned char out_char)
 
 char Gavbf_Controller::bf_input()
 {
-	char c;
-	cin >> c;
-	return c;
+	return view->getchar();
 }
 
 void Gavbf_Controller::run()
 {
+	view->draw();
+	// while not user does call exit:
+	// 	get input
+	// 	respond to input by:
+	// 		calling model
+	// 		calling vstderrthresholdiew
+	// 		calling both
+	int c;
+	bool running = false;
+	while(true) {
+		c = view->getchar();
+		LOG(INFO) << "Recieved input: " << c;
+		google::FlushLogFiles(google::INFO);
+		switch(c) {
+			case 's':
+				model->execute_next_char();
+				view->draw();
+				break;
+			case 'n':
+				model->execute_next_instruction();
+				view->draw();
+				break;
+			case 'c':
+				running = true;
+				break;
+			case 'q':
+				goto exit_loop;
+				break;
+		}
+		if(running && model->is_terminated() == false) {
+			model->execute_next_instruction();
+		}
+	}
+exit_loop:
+	;
 }
 
 /**************************************************
