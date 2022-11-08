@@ -3,8 +3,8 @@
  **************************************************/
 #include <iostream>
 #include <cassert>
+#include <glog/logging.h>
 
-#include <filesystem>
 
 #include "gavbf_model.h"
 
@@ -18,8 +18,8 @@ const int D_MEM_INIT_SIZE = 256;
  **************************************************/
 using namespace std;
 
-Gavbf_Model::Gavbf_Model(BF_Controller* controller_ptr, string infile_name):
-	controller_ptr{controller_ptr},
+Gavbf_Model::Gavbf_Model(Gavbf_Controller& controller, string infile_name):
+	controller{controller},
 	infile_name{infile_name},
 	i_idx{0},
 	d_idx{0},
@@ -28,8 +28,10 @@ Gavbf_Model::Gavbf_Model(BF_Controller* controller_ptr, string infile_name):
 	last_executed_instruction{0},
 	infile{infile_name}
 {
+	LOG(INFO) << "Creating Gavbf_Model";
 	init_i_mem();
 	init_d_mem();
+	LOG(INFO) << "Created Gavbf_Model";
 }
 
 /**************************************************
@@ -61,7 +63,10 @@ void Gavbf_Model::write_d_mem(unsigned char new_data)
 
 void Gavbf_Model::execute_next_char()
 {
-	assert(is_terminated() == false);
+	LOG(INFO) << "Entering execute_next_char()";
+	if(is_terminated()) {
+		return;
+	}
 	switch(i_mem[i_idx]) {
 		case '>':
 			if(d_idx + 1 > d_mem.size()) {
@@ -95,51 +100,29 @@ void Gavbf_Model::execute_next_char()
 		return;
 	}
 	++i_idx;
+	LOG(INFO) << "Exiting execute_next_char()";
 }
 
 void Gavbf_Model::execute_next_instruction()
 {
-	assert(is_terminated() == false);
+	LOG(INFO) << "Entering execute_next_char()";
+	// assert(is_terminated() == false);
+	if(is_terminated() == true) {
+		return;
+	}
 	while(i_idx < i_mem.size()) {
 		if(is_executable_instruction(i_mem[i_idx])) {
-			execute_next_instruction();
+			execute_next_char();
 			return;
 		}
 		++i_idx;
 	}
+	LOG(INFO) << "Exiting execute_next_char()";
 }
 
 bool Gavbf_Model::is_terminated()
 {
 	return i_idx >= i_mem.size();
-}
-
-int Gavbf_Model::get_i_idx()
-{
-	return i_idx;
-}
-int Gavbf_Model::get_d_idx()
-{
-	return d_idx;
-}
-
-vector<char>& Gavbf_Model::get_i_mem()
-{
-	return i_mem;
-}
-
-vector<unsigned char>& Gavbf_Model::get_d_mem()
-{
-	return d_mem;
-}
-
-int Gavbf_Model::get_last_executed_instruction()
-{
-	return last_executed_instruction;
-}
-
-string Gavbf_Model::get_infile_name() {
-	return infile_name;
 }
 
 /**************************************************
@@ -200,12 +183,12 @@ void Gavbf_Model::execute_right_bracket()
 
 void Gavbf_Model::bf_output(unsigned char out_char)
 {
-	controller_ptr->bf_output(out_char);
+	controller.bf_output(out_char);
 }
 
 unsigned char Gavbf_Model::bf_input()
 {
-	return controller_ptr->bf_input();
+	return controller.bf_input();
 }
 
 /**************************************************

@@ -3,7 +3,6 @@
 /**************************************************
  * Includes
  **************************************************/
-#include "controller.h"
 
 /**************************************************
  * Constants
@@ -14,22 +13,22 @@
  **************************************************/
 using namespace std;
 
-class BF_Model;
-class BF_View;
+class Gavbf_Model;
+class Gavbf_View;
 
-class Gavbf_Controller: public BF_Controller {
-	BF_Model* model;
-	BF_View* view;
+class Gavbf_Controller {
+	Gavbf_Model* model;
+	Gavbf_View* view;
 public:
 	Gavbf_Controller();
-	void add_model(BF_Model* model) override;
-	void add_view(BF_View* view) override;
-	BF_Model& get_model() override;
+	void add_gavbf_model(Gavbf_Model* model);
+	void add_gavbf_view(Gavbf_View* view);
+	Gavbf_Model& get_gavbf_model();
+	Gavbf_View& get_gavbf_view();
 
-	void bf_output(unsigned char out_char) override;
-	char bf_input() override;
-
-	void run() override;
+	void bf_output(unsigned char out_char);
+	char bf_input();
+	void run();
 private:
 };
 

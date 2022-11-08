@@ -7,7 +7,7 @@
 #include <string>
 #include <fstream>
 
-#include "model.h"
+#include "gavbf_controller.h"
 
 /**************************************************
  * Constants
@@ -18,8 +18,9 @@
  **************************************************/
 using namespace std;
 
-class Gavbf_Model: public BF_Model {
-	BF_Controller* controller_ptr;
+class Gavbf_Model {
+	friend class Gavbf_View;
+	Gavbf_Controller& controller;
 	string infile_name;
 	int i_idx; // Instruction pointer
 	int d_idx; // Data pointer
@@ -28,22 +29,14 @@ class Gavbf_Model: public BF_Model {
 	int last_executed_instruction;
 	ifstream infile;
 public:
-	Gavbf_Model(BF_Controller* controller_ptr, string infile_name);
-	// Mutator methods
-	void set_i_idx(int new_i_idx) override;
-	void set_d_idx(int new_d_idx) override;
-	void write_i_mem(char new_instruction) override;
-	void write_d_mem(unsigned char new_data_byte) override;
-	void execute_next_char() override;
-	void execute_next_instruction() override;
-	// Accessor methods
-	bool is_terminated() override;
-	int get_i_idx() override;
-	int get_d_idx() override;
-	vector<char>& get_i_mem() override;
-	vector<unsigned char>& get_d_mem() override;
-	int get_last_executed_instruction() override;
-	string get_infile_name() override;
+	Gavbf_Model(Gavbf_Controller& controller, string infile_name);
+	void set_i_idx(int new_i_idx);
+	void set_d_idx(int new_d_idx);
+	void write_i_mem(char new_instruction);
+	void write_d_mem(unsigned char new_data_byte);
+	void execute_next_char();
+	void execute_next_instruction();
+	bool is_terminated();
 private:
 	void init_i_mem();
 	void init_d_mem();

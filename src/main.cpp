@@ -2,7 +2,10 @@
  * Includes
  **************************************************/
 #include <iostream>
-#include <unistd.h> // used for sleep()
+#include <filesystem>
+#include <unistd.h> // used for usleep()
+#include <cassert>
+#include <glog/logging.h>
 
 #include "gavbf_controller.h"
 #include "gavbf_model.h"
@@ -19,33 +22,47 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
+	// Setting up logging
+	google::InitGoogleLogging(argv[0]);
+	FLAGS_stderrthreshold = google::FATAL;
+	// google::stderrthreshold(google::FATAL);
+	google::SetLogDestination(google::INFO, "logs/info-");
+	google::SetLogDestination(google::WARNING, "logs/warning-");
+	google::SetLogDestination(google::ERROR, "logs/error-");
+	google::SetLogDestination(google::FATAL, "logs/log-");
+
+	LOG(INFO) << "main.cpp started";
+
+	// Checking file arg
 	if(argc < 2) {
 		cout << "Missing filename" << endl;
 		cout << "Syntax: gavbf <filename>" << endl;
+		LOG(ERROR) << "Missing filename argument";
 		exit(1);
 	}
 	if(argc > 2) {
 		cout << "Too many arguments" << endl;
 		cout << "Syntax: gavbf <filename>" << endl;
+		LOG(ERROR) << "Too many arguments";
 		exit(1);
 	}
-	Gavbf_Controller controller;
-	Gavbf_Model model(&controller, string(argv[1]));
-	Gavbf_View view(&controller, string(argv[1]));
-	controller.add_model(&model);
-	controller.add_view(&view);
-
-	view.draw_background();
-
-	while(model.is_terminated() == false) {
-		view.draw();
-		usleep(100000);
-		model.execute_next_char();
+	if(std::filesystem::exists(argv[1]) == false) {
+		cout << "Cannot find file \"" << argv[1] << "\"" << endl;
+		LOG(ERROR) << "Cannot find file\"" << argv[1] << "\"";
+		exit(1);
 	}
 
-	view.draw();
+	LOG(INFO) << "File arg: \"" << argv[1] << "\" OK";
+	google::FlushLogFiles(google::INFO);
 
-	cout << "hi\n";
+	// Setting up MVC components
+	Gavbf_Controller controller;
+	Gavbf_Model model(controller, string(argv[1]));
+	Gavbf_View view(controller, model, string(argv[1]));
+	controller.add_gavbf_model(&model);
+	controller.add_gavbf_view(&view);
+
+	controller.run();
 
 	return 0;
 }

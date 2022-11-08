@@ -5,7 +5,7 @@ SRC_DIRS := ./src
 EXCLUDED_SRC_DIRS := ./src/testing
 
 SRCS := $(shell find $(SRC_DIRS) -path $(SRC_DIRS)/testing -prune -or -name '*.cpp' -print)
-$(info $$SRCS is [${SRCS}])
+$(info $$SRCS = "${SRCS}")
 
 # String substitution for every C/C++ file.
 # As an example, hello.cpp turns into ./build/hello.cpp.o
@@ -19,11 +19,13 @@ DEPS := $(OBJS:.o=.d)
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 # Add a prefix to INC_DIRS. So moduleA would become -ImoduleA. GCC understands this -I flag
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
+# Add top level include dir
+INC_FLAGS += -I./include
 
 # The -MMD and -MP flags together generate Makefiles for us!
 # These files will have .d instead of .o as the output.
 CPPFLAGS := $(INC_FLAGS) -MMD -MP -g
-LDFLAGS += -lncurses -lfmt
+LDFLAGS += -lncurses -lfmt -lglog
 
 # The final build step.
 $(TARGET_EXEC): $(OBJS)
@@ -34,6 +36,8 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 	mkdir -p $(dir $@)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
+test: test.cpp
+	$(CXX) $(CPPFLAGS) $(LDFLAGS) test.cpp -o test
 
 .PHONY: clean
 clean:
