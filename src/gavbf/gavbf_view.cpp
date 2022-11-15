@@ -27,7 +27,8 @@ Gavbf_View::Gavbf_View(Gavbf_Controller& controller, Gavbf_Model& model):
 	program_string{},
 	input_string{},
 	output_string{},
-	borders{}
+	borders{},
+	tape_start{0}
 {
 	// Init ncurses stuff
 	initscr(); // Init ncurses
@@ -182,9 +183,20 @@ void Gavbf_View::draw_pointers()
 
 void Gavbf_View::draw_buttons()
 {
+	string line1{""};
+	string line2{""};
+
+	line1 += "s = step\t";
+	line1 += "n = next\t";
+	line1 += "< = scroll tape left";
+
+	line2 += "c = continue\t";
+	line2 += "q = quit\t";
+	line2 += "> = scroll tape right";
+
 	mvwprintw(buttons_win, 0, 0, "Commands:");
-	mvwprintw(buttons_win, 1, 0, "s = step            n = next");
-	mvwprintw(buttons_win, 2, 0, "c = continue        q = quit");
+	mvwprintw(buttons_win, 1, 0, line1.c_str());
+	mvwprintw(buttons_win, 2, 0, line2.c_str());
 }
 
 void Gavbf_View::draw_tape()
@@ -203,27 +215,33 @@ void Gavbf_View::draw_tape()
 	string tape3 = "|";
 
 	for(int i = 0; i < cells; ++i) {
-		if(i < 10) {
-			tape0 += "  " + to_string(i) + "   ";
+		if((tape_start + i) < 10) {
+			tape0 += "  " + to_string(tape_start + i) + "   ";
 		}
-		else {
-			tape0 += "  " + to_string(i) + "  ";
+		else if((tape_start + i) < 100) {
+			tape0 += "  " + to_string(tape_start + i) + "  ";
+		}
+		else if((tape_start + i) < 1000) {
+			tape0 += " " + to_string(tape_start + i) + "  ";
+		}
+		else if((tape_start + i) < 10'000) {
+			tape0 += " " + to_string(tape_start + i) + " ";
 		}
 		tape1 += "-----|";
-		if(data[i] < 10) {
-			tape2 += string("  ") + to_string(data[i]) + "  |";
+		if(data[tape_start + i] < 10) {
+			tape2 += string("  ") + to_string(data[tape_start + i]) + "  |";
 		}
-		else if(data[i] < 100) {
-			tape2 += string("  ") + to_string(data[i]) + " |";
+		else if(data[tape_start + i] < 100) {
+			tape2 += string("  ") + to_string(data[tape_start + i]) + " |";
 		}
-		else if(data[i] < 1000) {
-			tape2 += string(" ") + to_string(data[i]) + " |";
+		else if(data[tape_start + i] < 1000) {
+			tape2 += string(" ") + to_string(data[tape_start + i]) + " |";
 		}
-		else if(data[i] < 10'000) {
-			tape2 += " " + to_string(data[i]);
+		else if(data[tape_start + i] < 10'000) {
+			tape2 += " " + to_string(data[tape_start + i]);
 		}
 		else {
-			tape2 += to_string(data[i]);
+			tape2 += to_string(data[tape_start + i]);
 		}
 		tape3 += "_____|";
 	}
@@ -238,6 +256,22 @@ void Gavbf_View::draw_tape()
 void Gavbf_View::set_tape_start(int start)
 {
 	// TODO
+}
+
+void Gavbf_View::scroll_tape_start(int offset) {
+	if(tape_start + offset < 0) {
+		tape_start = 0;
+		return;
+	}
+	int x;
+	int y;
+	getmaxyx(tape_win, y, x);
+	int cells = (x - 1) / 6;
+	if(tape_start + offset > model.d_mem.size() - cells) {
+		tape_start = model.d_mem.size() - cells;
+		return;
+	}
+	tape_start += offset;
 }
 
 int Gavbf_View::getchar() {

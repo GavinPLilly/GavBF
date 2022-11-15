@@ -90,6 +90,14 @@ void Gavbf_Controller::run()
 			case 'q':
 				goto exit_loop;
 				break;
+			case '<':
+				view->scroll_tape_start(-1);
+				view->draw();
+				break;
+			case '>':
+				view->scroll_tape_start(1);
+				view->draw();
+				break;
 		}
 	}
 exit_loop:
