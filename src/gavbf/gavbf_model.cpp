@@ -63,6 +63,9 @@ void Gavbf_Model::write_d_mem(unsigned char new_data)
 
 void Gavbf_Model::execute_to_breakpoint()
 {
+	if(is_breakpoint(i_mem[i_idx].c)) {
+		++i_idx;
+	}
 	while(is_terminated() == false && is_breakpoint(i_mem[i_idx].c) == false) {
 		execute_next_char();
 	}
@@ -70,7 +73,6 @@ void Gavbf_Model::execute_to_breakpoint()
 
 void Gavbf_Model::execute_next_char()
 {
-	LOG(INFO) << "Entering execute_next_char()";
 	if(is_terminated()) {
 		return;
 	}
@@ -107,13 +109,10 @@ void Gavbf_Model::execute_next_char()
 		return;
 	}
 	++i_idx;
-	LOG(INFO) << "Exiting execute_next_char()";
 }
 
 void Gavbf_Model::execute_next_instruction()
 {
-	LOG(INFO) << "Entering execute_next_char()";
-	// assert(is_terminated() == false);
 	if(is_terminated() == true) {
 		return;
 	}
@@ -125,7 +124,6 @@ void Gavbf_Model::execute_next_instruction()
 		}
 		++i_idx;
 	}
-	LOG(INFO) << "Exiting execute_next_char()";
 }
 
 bool Gavbf_Model::is_terminated()
