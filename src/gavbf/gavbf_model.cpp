@@ -53,12 +53,19 @@ void Gavbf_Model::set_d_idx(int new_d_idx)
 
 void Gavbf_Model::write_i_mem(char new_instruction)
 {
-	i_mem[i_idx] = new_instruction;
+	i_mem[i_idx].c = new_instruction;
 }
 
 void Gavbf_Model::write_d_mem(unsigned char new_data)
 {
 	d_mem[d_idx] = new_data;
+}
+
+void Gavbf_Model::execute_to_breakpoint()
+{
+	while(is_terminated() == false && is_breakpoint(i_mem[i_idx].c) == false) {
+		execute_next_char();
+	}
 }
 
 void Gavbf_Model::execute_next_char()
@@ -67,7 +74,7 @@ void Gavbf_Model::execute_next_char()
 	if(is_terminated()) {
 		return;
 	}
-	switch(i_mem[i_idx]) {
+	switch(i_mem[i_idx].c) {
 		case '>':
 			if(d_idx + 1 > d_mem.size()) {
 				d_mem.resize((d_mem.size() * 3) / 2);
@@ -111,7 +118,8 @@ void Gavbf_Model::execute_next_instruction()
 		return;
 	}
 	while(i_idx < i_mem.size()) {
-		if(is_executable_instruction(i_mem[i_idx])) {
+		if(is_executable_instruction(i_mem[i_idx].c)
+				|| is_breakpoint(i_mem[i_idx].c)) {
 			execute_next_char();
 			return;
 		}
@@ -130,10 +138,32 @@ bool Gavbf_Model::is_terminated()
  **************************************************/
 void Gavbf_Model::init_i_mem()
 {
+	int row = 0;
+	int col = 0;
 	char c;
 	infile.get(c);
 	while(infile.good() && infile.eof() == false) {
-		i_mem.push_back(c);
+		if(c == '\n') {
+			++row;
+			col = 0;
+		}
+		else if(is_executable_instruction(c)) {
+			i_mem.push_back({c, row, col});
+			++col;
+		}
+		else if(is_breakpoint(c)) {
+			i_mem.push_back({c, row, col});
+			++col;
+		}
+		else if(c == '\t') {
+			// if(col == 0) {
+			// 	col = 8;
+			// }
+			col += (8 - (col + 1) % 8) + 1;
+		}
+		else {
+			++col;
+		}
 		infile.get(c);
 	}
 }
@@ -147,13 +177,13 @@ void Gavbf_Model::execute_left_bracket()
 		int depth = 0;
 		++i_idx;
 		while(i_idx < i_mem.size()) {
-			if(depth == 0 && i_mem[i_idx] == ']') {
+			if(depth == 0 && i_mem[i_idx].c == ']') {
 				return;
 			}
-			if(i_mem[i_idx] == '[') {
+			if(i_mem[i_idx].c == '[') {
 				++depth;
 			}
-			else if(i_mem[i_idx] == ']') {
+			else if(i_mem[i_idx].c == ']') {
 				--depth;
 			}
 			++i_idx;
@@ -167,13 +197,13 @@ void Gavbf_Model::execute_right_bracket()
 		int depth = 0;
 		--i_idx;
 		while(i_idx >= 0) {
-			if(depth == 0 && i_mem[i_idx] == '[') {
+			if(depth == 0 && i_mem[i_idx].c == '[') {
 				return;
 			}
-			if(i_mem[i_idx] == ']') {
+			if(i_mem[i_idx].c == ']') {
 				++depth;
 			}
-			else if(i_mem[i_idx] == '[') {
+			else if(i_mem[i_idx].c == '[') {
 				--depth;
 			}
 			--i_idx;
@@ -194,14 +224,19 @@ unsigned char Gavbf_Model::bf_input()
 /**************************************************
  * Code
  **************************************************/
-bool is_executable_instruction(char instruction)
+bool is_executable_instruction(char c)
 {
-	return instruction == '>'
-		|| instruction == '<'
-		|| instruction == '+'
-		|| instruction == '-'
-		|| instruction == '.'
-		|| instruction == ','
-		|| instruction == '['
-		|| instruction == ']';
+	return c == '>'
+		|| c == '<'
+		|| c == '+'
+		|| c == '-'
+		|| c == '.'
+		|| c == ','
+		|| c == '['
+		|| c == ']';
+}
+
+bool is_breakpoint(char c)
+{
+	return c == '#';
 }

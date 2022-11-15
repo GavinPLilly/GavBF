@@ -69,11 +69,10 @@ void Gavbf_Controller::run()
 	// 		calling vstderrthresholdiew
 	// 		calling both
 	int c;
-	bool running = false;
 	while(true) {
 		c = view->getchar();
-		LOG(INFO) << "Recieved input: " << c;
-		google::FlushLogFiles(google::INFO);
+		// LOG(INFO) << "Recieved input: " << c;
+		// google::FlushLogFiles(google::INFO);
 		switch(c) {
 			case 's':
 				model->execute_next_char();
@@ -84,14 +83,12 @@ void Gavbf_Controller::run()
 				view->draw();
 				break;
 			case 'c':
-				running = true;
+				model->execute_to_breakpoint();
+				view->draw();
 				break;
 			case 'q':
 				goto exit_loop;
 				break;
-		}
-		if(running && model->is_terminated() == false) {
-			model->execute_next_instruction();
 		}
 	}
 exit_loop:
