@@ -176,13 +176,15 @@ void Gavbf_View::draw_pointers()
 	mvwprintw(pointers_win, 0, 0, "Pointers:");
 	string tmp = fmt::format("Instruction Pointer: {}", model.i_idx);
 	mvwprintw(pointers_win, 1, 0, tmp.c_str());
-	tmp = fmt::format("Data Pointer: {}", model.i_idx);
+	tmp = fmt::format("Data Pointer: {}", model.d_idx);
 	mvwprintw(pointers_win, 2, 0, tmp.c_str());
 }
 
 void Gavbf_View::draw_buttons()
 {
-	mvwprintw(buttons_win, 0, 0, "Commands");
+	mvwprintw(buttons_win, 0, 0, "Commands:");
+	mvwprintw(buttons_win, 1, 0, "s = step            n = next");
+	mvwprintw(buttons_win, 2, 0, "c = continue        q = quit");
 }
 
 void Gavbf_View::draw_tape()

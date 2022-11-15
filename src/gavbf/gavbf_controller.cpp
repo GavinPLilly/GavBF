@@ -52,6 +52,7 @@ Gavbf_View& Gavbf_Controller::get_gavbf_view()
 void Gavbf_Controller::bf_output(unsigned char out_char)
 {
 	view->bf_output(out_char);
+	view->draw();
 }
 
 char Gavbf_Controller::bf_input()
