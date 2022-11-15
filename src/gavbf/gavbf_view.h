@@ -35,6 +35,7 @@ class Gavbf_View {
 	string input_string = {};
 	string output_string = {};
 	vector<Borders> borders = {};
+	int tape_start = 0;
 	// Window variables
 	int total_y;
 	int total_x;
@@ -60,6 +61,7 @@ public:
 	void draw_tape();
 	// Controlling the view
 	void set_tape_start(int start);
+	void scroll_tape_start(int offset);
 	// Input
 	int getchar();
 private:
