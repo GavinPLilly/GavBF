@@ -36,6 +36,7 @@ Gavbf_View::Gavbf_View(Gavbf_Controller& controller, Gavbf_Model& model):
 	keypad(stdscr, TRUE); // Allow automatic handling of special characters
 	noecho(); // Don't echo input
 	curs_set(0); // No cursor
+	set_tabsize(8); // set the tab size to 8 spaces
 
 	// Init windows and their borders
 	getmaxyx(stdscr, total_y, total_x);
@@ -141,29 +142,21 @@ void Gavbf_View::draw_background()
 
 void Gavbf_View::draw_program()
 {
-	mvwprintw(program_win, 0, 0, "Input:");
+	mvwprintw(program_win, 0, 0, "Program:");
 	if(program_file.is_open() == false) {
 		mvwprintw(program_win, 1, 0, "<No file selected>");
-		// wcolor_set(WINDOW *win, short pair, void* opts);
-		wattron(program_win, A_STANDOUT);
+		return;
 	}
-	else {
-		// wcolor_set(WINDOW *win, short pair, void* opts);
-		int i_idx = model.i_idx;
-		wmove(program_win, 1, 0);
-		wprintw(program_win, "%.*s", i_idx, program_string.c_str());
-
-		wattron(program_win, A_STANDOUT);
-		wprintw(program_win, "%c", program_string.c_str()[i_idx]);
-		wattroff(program_win, A_STANDOUT);
-
-		wprintw(program_win, "%s", &(program_string.c_str())[i_idx + 1]);
-
-		LOG(INFO) << "i_idx: " << i_idx;
-		LOG(INFO) << "program_string: \n"
-			<< static_cast<int>(program_string.c_str()[i_idx]);
-	}
-	// Reset attributes
+	int i_idx = model.i_idx;
+	char cur_char = model.i_mem[i_idx].c;
+	int cur_row = model.i_mem[i_idx].row;
+	int cur_col = model.i_mem[i_idx].col;
+	const char* program_c_str = program_string.c_str();
+	wmove(program_win, 1, 0);
+	wprintw(program_win, "%s", program_c_str);
+	wmove(program_win, cur_row + 1, cur_col);
+	wattron(program_win, A_STANDOUT);
+	wprintw(program_win, "%c", cur_char);
 	wattroff(program_win, A_STANDOUT);
 }
 
@@ -246,7 +239,6 @@ void Gavbf_View::set_tape_start(int start)
 }
 
 int Gavbf_View::getchar() {
-	mvwprintw(input_win, 1, 0, "NEED INPUT!");
 	draw_input();
 	return getch();
 }
